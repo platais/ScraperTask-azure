@@ -1,23 +1,11 @@
 using System;
-using System.Globalization;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Azure;
-using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-
 using Newtonsoft.Json;
-using ScraperTask.Functions;
+using ScraperTask.Services;
 using ScraperTask.Models;
-using CloudStorageAccount = Microsoft.Azure.Cosmos.Table.CloudStorageAccount;
 
 namespace ScraperTask
 {
@@ -25,7 +13,6 @@ namespace ScraperTask
     public class ApiScraper
     {
         static readonly HttpClient client = new HttpClient();
-        public static string connString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
 
         [FunctionName("ApiScraper")]
         public async Task Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)
@@ -43,8 +30,8 @@ namespace ScraperTask
 
                 var SE = new StatusEntity(status, timeDateStr, responseStr);
 
-                await TableStorage.WriteToTable(connString, SE, log);
-                await BlobStorage.WriteToBlob(connString, payload, log);
+                await TableStorage.WriteToTable(SE, log);
+                await BlobStorage.WriteToBlob(payload, log);
             }
             catch (HttpRequestException e)
             {
@@ -52,11 +39,6 @@ namespace ScraperTask
             }
 
         }
-
-
-
-
-
     }
 }
 

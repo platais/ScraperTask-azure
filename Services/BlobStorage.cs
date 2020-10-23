@@ -2,45 +2,40 @@
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScraperTask.Functions
+namespace ScraperTask.Services
 {
     public class BlobStorage
     {
-        private static async Task CreateBlobContainerAsync(BlobServiceClient blobServiceClient)
+        public static async Task<BlobClient> GetBlobAsync()
         {
+            var connString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
             var containerName = "log-container";
+            var blobName = "logBlob" + DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm-ss") + ".json";
+            BlobServiceClient blobServiceClient = new BlobServiceClient(connString);
 
+            BlobContainerClient container;
             try
             {
-                BlobContainerClient container = await blobServiceClient.CreateBlobContainerAsync(containerName);
+                container = await blobServiceClient.CreateBlobContainerAsync(containerName);
             }
             catch (RequestFailedException e)
             {
-                BlobContainerClient container = blobServiceClient.GetBlobContainerClient(containerName);
+                container = blobServiceClient.GetBlobContainerClient(containerName);
             }
 
-        }
-        public static async Task WriteToBlob(string connString, string source, ILogger log)
-        {
-            var containerName = "log-container";
-            var blobName = "logBlob" + DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm-ss") + ".json";
-            
-            MemoryStream jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(source ?? ""));
-
-            BlobServiceClient blobServiceClient = new BlobServiceClient(connString);
-            await CreateBlobContainerAsync(blobServiceClient);
-            BlobContainerClient container = blobServiceClient.GetBlobContainerClient(containerName);
             BlobClient blob = container.GetBlobClient(blobName);
-
+            return blob;
+        }
+        public static async Task WriteToBlob(string source, ILogger log)
+        {
+            MemoryStream jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(source ?? ""));
+            BlobClient blob = await GetBlobAsync(); 
             log.LogInformation("Uploading to Blob storage as blob:\n\t {0}\n", blob.Uri);
-
             await blob.UploadAsync(jsonStream);
         }
-
     }
 }
