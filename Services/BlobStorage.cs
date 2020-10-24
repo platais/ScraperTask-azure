@@ -37,5 +37,26 @@ namespace ScraperTask.Services
             log.LogInformation("Uploading to Blob storage as blob:\n\t {0}\n", blob.Uri);
             await blob.UploadAsync(jsonStream);
         }
+
+        public static async Task<string> GetBlobByDateStr(string str) 
+        {
+            var containerName = "log-container";
+            var connString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+
+            var blobName = "logBlob" + str + ".json";
+            BlobServiceClient blobServClient = new BlobServiceClient(connString);
+            BlobContainerClient container = blobServClient.GetBlobContainerClient(containerName);
+            BlobClient blob = container.GetBlobClient(blobName);
+            var line = "";
+            if (await blob.ExistsAsync())
+            {
+                var response = await blob.DownloadAsync();
+                using (var streamReader = new StreamReader(response.Value.Content))
+                {
+                        line = await streamReader.ReadToEndAsync();
+                }
+            }
+            return line;
+        }
     }
 }
