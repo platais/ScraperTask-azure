@@ -13,6 +13,14 @@ namespace ScraperTask
     public class ApiScraper
     {
         static readonly HttpClient client = new HttpClient();
+        private readonly IAddToBlob _addToBlob;
+        private readonly IAddToTable _addToTable;
+
+        public ApiScraper(IAddToBlob addToBlob, IAddToTable addToTable)
+        {
+            _addToBlob = addToBlob;
+            _addToTable = addToTable;
+        }
 
         [FunctionName("ApiScraper")]
         public async Task Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)
@@ -30,14 +38,13 @@ namespace ScraperTask
 
                 var SE = new StatusEntity(status, timeDateStr, responseStr);
 
-                await TableStorage.WriteToTable(SE, log);
-                await BlobStorage.WriteToBlob(payload, log);
+                await _addToTable.WriteToTable(SE, log);
+                await _addToBlob.WriteToBlob(payload, log);
             }
             catch (HttpRequestException e)
             {
                 log.LogInformation("exception: " + e);
             }
-
         }
     }
 }

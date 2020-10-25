@@ -11,18 +11,25 @@ using System.Threading.Tasks;
 
 namespace ScraperTask.Controllers
 {
-    public class BlobTriggerClient
+    public class HttpTriggerBlob
     {
+        private readonly IGetBlobsByDateStr _blobsByStr;
+        public HttpTriggerBlob(IGetBlobsByDateStr blobsByStr)
+        {
+            _blobsByStr = blobsByStr;
+        }
+        
         [FunctionName("FetchPayloadFromBlobByLogEntry")]
-        public static async Task FetchPayloadFromBlobByLogEntry(
+        public async Task<IActionResult> FetchPayloadFromBlobByLogEntry(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "getBlobByDate/")]
             HttpRequest req, ILogger log)
         {
             string blobDateStr = req.Query["date"];
 
-            var jsonD = await BlobStorage.GetBlobByDateStr(blobDateStr);
+            var jsonD = await _blobsByStr.GetBlobByDateStr(blobDateStr);
             var link = "C# HTTP trigger function processed a request.";
-            log.LogInformation($"{link} {jsonD}");
+
+            return (ActionResult)new OkObjectResult($"{link} {jsonD}");
         }
     }
 }
