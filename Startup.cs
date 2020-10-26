@@ -10,7 +10,6 @@ namespace ScraperTask
     class Startup : FunctionsStartup
     {
         private IConfiguration _configuration;
-        
         public override void Configure(IFunctionsHostBuilder builder)
         {
             ConfigureSettings(builder);
@@ -21,7 +20,6 @@ namespace ScraperTask
             builder.Services.AddSingleton<IGetTablesAsync, GetTablesAsync>(); 
             builder.Services.AddSingleton<IQueryTablesByDateRange, QueryTablesByDateRange>();
             builder.Services.AddHttpClient();
-
         }
 
         private void ConfigureSettings(IFunctionsHostBuilder builder) 
@@ -31,7 +29,6 @@ namespace ScraperTask
                 .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .Build();
-
             _configuration = config;
 
             var blobSettings = new BlobSettings()

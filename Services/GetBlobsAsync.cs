@@ -1,9 +1,6 @@
-﻿using Azure;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ScraperTask.Services
@@ -19,10 +16,11 @@ namespace ScraperTask.Services
             _configuration = configuration;
         }
         public async Task<BlobClient> GetBlobAsync()
-        {//_configuration.GetConnectionString("AzureWebJobsStorage");
-            var connString = Environment.GetEnvironmentVariable("AzureWebJobsStorage"); //_configuration.GetConnectionString("AzureWebJobsStorage");//
-            var containerName = "log-container"; //_storageSettings.ContainerName;//
-            var newBlobName = "logBlob" + DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm-ss") + ".json";
+        {   //_configuration.GetConnectionString("AzureWebJobsStorage");
+            var connString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+            //_storageSettings.ContainerName;
+            var containerName = "log-container";
+            var newBlobName = "logBlob" + DateTime.UtcNow.ToString("yyyy-MM-dd-HH:mm:ss") + ".json";
             BlobServiceClient blobServiceClient = new BlobServiceClient(connString);
 
             BlobContainerClient container;
@@ -30,7 +28,7 @@ namespace ScraperTask.Services
             {
                 container = await blobServiceClient.CreateBlobContainerAsync(containerName);
             }
-            catch (RequestFailedException e)
+            catch
             {
                 container = blobServiceClient.GetBlobContainerClient(containerName);
             }
