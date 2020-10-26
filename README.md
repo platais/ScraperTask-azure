@@ -47,4 +47,9 @@ http://localhost:7071/api/getBlobByDate/?date=2020-10-25-23:32:03
 - and some other smaller ones (or maybe not)
 
 ## Some screenshots:
- 
+Blob files generated from request in storage manager:
+![Screenshot3](https://user-images.githubusercontent.com/7956231/97122632-fe2a0300-172f-11eb-944b-0e76faca0443.jpg)
+Searching for specific blob by date and time + GET requests response in browser :
+![Screenshot1](https://user-images.githubusercontent.com/7956231/97122634-ff5b3000-172f-11eb-8d4d-d61180d32df9.jpg)
+Querying DB for specific date, time range + response from GET request in Postman :
+![Screenshot2](https://user-images.githubusercontent.com/7956231/97122635-ff5b3000-172f-11eb-8650-8ac5c27b7bf8.jpg)
